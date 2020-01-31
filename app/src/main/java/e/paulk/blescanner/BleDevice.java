@@ -16,6 +16,10 @@ public class BleDevice {
 
     private String device_identifier;
 
+    private String lastUpdateTime;
+
+    private float estimated_distance;
+
     public BleDevice() {
     }
 
@@ -41,7 +45,7 @@ public class BleDevice {
     }
 
     public void setDevice_UUID(String device_UUID) {
-        this.device_UUID = device_UUID;
+        this.device_UUID = formatStringToUUID(device_UUID);
     }
 
     public void setDevice_TXpower(int device_TXpower) {
@@ -62,6 +66,18 @@ public class BleDevice {
 
     public void setDevice_identifier(String device_identifier) {
         this.device_identifier = device_identifier;
+    }
+
+    public void setLastUpdateTime(String lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public void setEstimated_distance(float estimated_distance) {
+        this.estimated_distance = estimated_distance;
+    }
+
+    public String getLastUpdateTime() {
+        return lastUpdateTime;
     }
 
     public String getDevice_name() {
@@ -92,6 +108,10 @@ public class BleDevice {
         return device_identifier;
     }
 
+    public float getEstimated_distance() {
+        return estimated_distance;
+    }
+
     public static String getDataFromByteArray(byte[] byteArray) {
         if (byteArray == null) {
             return null;
@@ -105,5 +125,18 @@ public class BleDevice {
         }
         String str = new String(hexChars);
         return str;
+    }
+
+    public static String formatStringToUUID(String str) {
+        String temp = str.substring(0, 8);
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(8, 12));
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(12, 16));
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(16, 20));
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(20));
+        return temp;
     }
 }

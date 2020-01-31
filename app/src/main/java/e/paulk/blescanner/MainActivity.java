@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
@@ -20,11 +21,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     protected static final ParcelUuid RADIOLAND_BEACON = ParcelUuid.fromString(
             "00001803-494C-4F47-4943-544543480000");
+
+    protected static final String BEACON_NAME = "Radioland iBeacon";
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -47,11 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private List<String> listPermissionNeeded;
 
     private RecyclerView.Adapter mAdapter;
-/*
-    private String ble_name;
-    private String ble_identifier;
-    private int ble_rssi;
-*/
+
     ArrayList<BleDevice> devices;
 
     @Override
@@ -79,16 +85,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static String formatStringToUUID(String str) {
+        String temp = str.substring(0, 8);
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(8, 12));
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(12, 16));
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(16, 20));
+        temp = temp.concat("-");
+        temp = temp.concat(str.substring(20));
+        return temp;
+    }
+
     ScanCallback mScanCallBack = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            String data = "unavailable";
             String ble_name;
             String ble_identifier;
+            String uuid = "null";
+            String data = "null";
             int ble_rssi;
             BleDevice currentDevice = new BleDevice();
             int ble_tx = 0;
+
             if (result != null) {
                 ScanRecord scanRecord = result.getScanRecord();
                 BluetoothDevice bluetoothDevice = result.getDevice();
@@ -98,12 +119,19 @@ public class MainActivity extends AppCompatActivity {
                     ble_identifier = bluetoothDevice.getAddress();
                     byte[] bytes = scanRecord.getBytes();
 
+                    SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+                    Calendar c = Calendar.getInstance();
+                    String currentTime = df.format(c.getTime());
                     if (bytes != null) {
                         currentDevice.setDevice_rawData(bytes);
+                        data = currentDevice.getDevice_convertedRawData();
+                        currentDevice.setDevice_UUID(data.substring(18,50));
+                        uuid = currentDevice.getDevice_UUID();
                     }
                     currentDevice.setDevice_RSSI(ble_rssi);
                     currentDevice.setDevice_name(ble_name);
                     currentDevice.setDevice_identifier(ble_identifier);
+                    currentDevice.setLastUpdateTime(currentTime);
 
                     if (devices.isEmpty()) {
                         devices.add(currentDevice);
@@ -120,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                             if (recordedDevice.getDevice_identifier().equals(ble_identifier)) {
                                 recordedDevice.setDevice_RSSI(ble_rssi);
                                 recordedDevice.setDevice_rawData(bytes);
+                                recordedDevice.setLastUpdateTime(currentTime);
                                 Log.i(TAG, "same");
                                 isDifferent = false;
                             } else {
@@ -137,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     mAdapter.notifyDataSetChanged();
                     Log.i(TAG, "name: " + ble_name + " RSSI: " + String.valueOf(ble_rssi) +
                             " Tx: " + String.valueOf(ble_tx) + " identifier: " + ble_identifier +
-                            " data: " + data);
+                            " uuid: " + uuid + " data: " + data + " LastUpdate: " + currentTime);
                     Log.i(TAG, "adapter: " + String.valueOf(mAdapter.getItemCount()) +
                             "array: " + devices.size());
 
@@ -176,9 +205,17 @@ public class MainActivity extends AppCompatActivity {
         ScanSettings settings = new ScanSettings.Builder().setScanMode(
                 ScanSettings.SCAN_MODE_LOW_LATENCY).build();
 
+        List<ScanFilter> scanFilters = new ArrayList<>();
+        //ScanFilter filter_uuid = new ScanFilter.Builder().setServiceUuid(RADIOLAND_BEACON).build();
+        ScanFilter filter_name = new ScanFilter.Builder().setDeviceName(BEACON_NAME).build();
+        ScanFilter filter_uuid = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(
+                "00001803-494C-4F47-4943-544543480000")).build();
+        //scanFilters.add(filter_uuid);
+        scanFilters.add(filter_name);
+
         BluetoothLeScanner bleScanner = mBluetoothAdapter.getBluetoothLeScanner();
         if (bleScanner != null) {
-            bleScanner.startScan(null, settings, mScanCallBack);
+            bleScanner.startScan(scanFilters, settings, mScanCallBack);
         }
     }
 
@@ -197,6 +234,33 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please turn on the Bluetooth",
                         Toast.LENGTH_SHORT);
             }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+                Toast.makeText(this, "Refreshing scan result", Toast.LENGTH_SHORT).show();
+                stopScan();
+                //remove all the data
+                devices.clear();
+                mAdapter.notifyDataSetChanged();
+                scanStart();
+                return true;
+            case R.id.menu_stopScan:
+                Toast.makeText(this, "Stop scan", Toast.LENGTH_SHORT).show();
+                stopScan();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

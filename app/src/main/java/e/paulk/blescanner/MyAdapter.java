@@ -39,6 +39,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             int deviceTX = mData.get(i).getDevice_TXpower();
             String rawData = mData.get(i).getDevice_convertedRawData();
             String identifier = mData.get(i).getDevice_identifier();
+            String lastUpdae = mData.get(i).getLastUpdateTime();
             //int deviceAdID = mData.get(i).getDevice_adID();
 
             viewHolder.mTextView_deviceName.setText("Name: " + deviceName);
@@ -47,6 +48,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             viewHolder.mTextView_deviceTX.setText("TX: " + String.valueOf(deviceTX));
             viewHolder.mTextView_deviceRawData.setText("Raw Data: " + rawData);
             viewHolder.mTextView_deviceIdentifier.setText("Identifier: " + identifier);
+            viewHolder.mTextView_lastUpdate.setText("Last Updated: " + lastUpdae);
         }
         else {
             viewHolder.mTextView_deviceName.setText("Error");
@@ -55,6 +57,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             viewHolder.mTextView_deviceTX.setText("Error");
             viewHolder.mTextView_deviceRawData.setText("Error");
             viewHolder.mTextView_deviceIdentifier.setText("Error");
+            viewHolder.mTextView_lastUpdate.setText("Error");
         }
     }
 
@@ -71,6 +74,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         TextView mTextView_deviceTX;
         TextView mTextView_deviceRawData;
         TextView mTextView_deviceIdentifier;
+        TextView mTextView_lastUpdate;
         //TextView mTextView_deviceAdID;
 
         public ViewHolder(@NonNull View itemView) {
@@ -81,6 +85,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             mTextView_deviceTX = (TextView) itemView.findViewById(R.id.ble_TX);
             mTextView_deviceRawData = (TextView) itemView.findViewById(R.id.ble_rawData);
             mTextView_deviceIdentifier = (TextView) itemView.findViewById(R.id.ble_identifier);
+            mTextView_lastUpdate = (TextView) itemView.findViewById(R.id.ble_lastUpdate);
         }
     }
 }
