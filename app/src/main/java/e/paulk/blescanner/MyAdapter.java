@@ -36,6 +36,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             String deviceName = mData.get(i).getDevice_name();
             String deviceUUID = mData.get(i).getDevice_UUID();
             int deviceRSSI = mData.get(i).getDevice_RSSI();
+            int deviceDistance = mData.get(i).getEstimated_distance();
             int deviceTX = mData.get(i).getDevice_TXpower();
             String rawData = mData.get(i).getDevice_convertedRawData();
             String identifier = mData.get(i).getDevice_identifier();
@@ -45,6 +46,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             viewHolder.mTextView_deviceName.setText("Name: " + deviceName);
             viewHolder.mTextView_deviceUUID.setText("UUID: " + deviceUUID);
             viewHolder.mTextView_deviceRSSI.setText("RSSI: " + String.valueOf(deviceRSSI));
+            viewHolder.mTextView_deviceDistance.setText("Distance: " + String.valueOf(deviceDistance));
             viewHolder.mTextView_deviceTX.setText("TX: " + String.valueOf(deviceTX));
             viewHolder.mTextView_deviceRawData.setText("Raw Data: " + rawData);
             viewHolder.mTextView_deviceIdentifier.setText("Identifier: " + identifier);
@@ -54,6 +56,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             viewHolder.mTextView_deviceName.setText("Error");
             viewHolder.mTextView_deviceUUID.setText("Error");
             viewHolder.mTextView_deviceRSSI.setText("Error");
+            viewHolder.mTextView_deviceDistance.setText("Error");
             viewHolder.mTextView_deviceTX.setText("Error");
             viewHolder.mTextView_deviceRawData.setText("Error");
             viewHolder.mTextView_deviceIdentifier.setText("Error");
@@ -71,6 +74,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         TextView mTextView_deviceName;
         TextView mTextView_deviceUUID;
         TextView mTextView_deviceRSSI;
+        TextView mTextView_deviceDistance;
         TextView mTextView_deviceTX;
         TextView mTextView_deviceRawData;
         TextView mTextView_deviceIdentifier;
@@ -82,6 +86,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             mTextView_deviceName = (TextView) itemView.findViewById(R.id.ble_name);
             mTextView_deviceUUID = (TextView) itemView.findViewById(R.id.ble_uuid);
             mTextView_deviceRSSI = (TextView) itemView.findViewById(R.id.ble_RSSI);
+            mTextView_deviceDistance = (TextView) itemView.findViewById(R.id.ble_distance);
             mTextView_deviceTX = (TextView) itemView.findViewById(R.id.ble_TX);
             mTextView_deviceRawData = (TextView) itemView.findViewById(R.id.ble_rawData);
             mTextView_deviceIdentifier = (TextView) itemView.findViewById(R.id.ble_identifier);

@@ -40,6 +40,14 @@
         android:text="TextView" />
 
     <TextView
+        android:id="@+id/ble_distance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="6dp"
+        android:text="TextView" />
+
+    <TextView
         android:id="@+id/ble_rawData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

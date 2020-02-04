@@ -6,9 +6,9 @@ public class BleDevice {
 
     private String device_UUID;
 
-    private int device_TXpower;
-
     private int device_RSSI;
+
+    private int device_TXpower;
 
     private int device_adID;
 
@@ -18,7 +18,7 @@ public class BleDevice {
 
     private String lastUpdateTime;
 
-    private float estimated_distance;
+    private int estimated_distance;
 
     public BleDevice() {
     }
@@ -48,12 +48,14 @@ public class BleDevice {
         this.device_UUID = formatStringToUUID(device_UUID);
     }
 
-    public void setDevice_TXpower(int device_TXpower) {
-        this.device_TXpower = device_TXpower;
-    }
-
     public void setDevice_RSSI(int device_RSSI) {
         this.device_RSSI = device_RSSI;
+    }
+
+    public void setDevice_TXpower() {
+        String data = getDevice_convertedRawData();
+        String tx_byte = data.substring(58, 60);
+        this.device_TXpower = Integer.valueOf(tx_byte, 16).byteValue();
     }
 
     public void setDevice_adID(int device_adID) {
@@ -72,7 +74,7 @@ public class BleDevice {
         this.lastUpdateTime = lastUpdateTime;
     }
 
-    public void setEstimated_distance(float estimated_distance) {
+    public void setEstimated_distance(int estimated_distance) {
         this.estimated_distance = estimated_distance;
     }
 
@@ -108,7 +110,26 @@ public class BleDevice {
         return device_identifier;
     }
 
-    public float getEstimated_distance() {
+    public int getEstimated_distance() {
+        //calculate the distance by RSSI
+        //80/90/100 for 1/2/3 meters
+        int rssi = getDevice_RSSI() * -1;
+
+        if (rssi > 40 && rssi < 65) {
+            //1 meter
+            estimated_distance = 1;
+        } else if (rssi > 65 && rssi < 76) {
+            //2 meter
+            estimated_distance = 2;
+        } else if (rssi > 76 && rssi < 80){
+            //3 meter
+            estimated_distance = 3;
+        } else if (rssi > 80 && rssi < 90) {
+            //4 meter
+            estimated_distance = 4;
+        } else {
+            estimated_distance = 0;
+        }
         return estimated_distance;
     }
 

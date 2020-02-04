@@ -106,9 +106,9 @@ public class MainActivity extends AppCompatActivity {
             String ble_identifier;
             String uuid = "null";
             String data = "null";
-            int ble_rssi;
-            BleDevice currentDevice = new BleDevice();
+            int ble_rssi = 0;
             int ble_tx = 0;
+            BleDevice currentDevice = new BleDevice();
 
             if (result != null) {
                 ScanRecord scanRecord = result.getScanRecord();
@@ -132,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
                     currentDevice.setDevice_name(ble_name);
                     currentDevice.setDevice_identifier(ble_identifier);
                     currentDevice.setLastUpdateTime(currentTime);
+                    currentDevice.setDevice_TXpower();
+                    ble_tx = currentDevice.getDevice_TXpower();
 
                     if (devices.isEmpty()) {
                         devices.add(currentDevice);
@@ -165,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     mAdapter.notifyDataSetChanged();
                     Log.i(TAG, "name: " + ble_name + " RSSI: " + String.valueOf(ble_rssi) +
-                            " Tx: " + String.valueOf(ble_tx) + " identifier: " + ble_identifier +
+                            " Tx: " + ble_tx + " identifier: " + ble_identifier +
                             " uuid: " + uuid + " data: " + data + " LastUpdate: " + currentTime);
                     Log.i(TAG, "adapter: " + String.valueOf(mAdapter.getItemCount()) +
                             "array: " + devices.size());
